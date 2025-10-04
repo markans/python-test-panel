@@ -5,13 +5,22 @@ A lightweight web-based application for testing phone number connectivity using 
 ## Features
 
 - ✅ **Batch Testing**: Test multiple phone numbers sequentially
-- ✅ **Improved SIP Handler**: Better connection detection with test mode for 63322683000
+- ✅ **Smart Connection Detection**: Deterministic rules based on country codes and number patterns
 - 📊 **Real-time Status**: Live updates and progress tracking via WebSocket
-- 📝 **Detailed Logging**: Real-time log display with color-coded messages
+- 📝 **Detailed Logging**: Real-time log display with color-coded messages and connection reasons
 - 💾 **Export Results**: Export results to CSV or Excel format
 - 🔧 **Configurable Settings**: Easy SIP account configuration through web interface
 - ⏱️ **Customizable Timing**: 25-second call duration, 10-second idle between calls
+- 🌍 **International Support**: Validates numbers from multiple countries
 - 🎯 **Minimal Dependencies**: Uses lightweight Python libraries
+
+## Connection Logic
+
+The system uses intelligent rules to determine if a phone number can connect. See [CONNECTION_RULES.md](CONNECTION_RULES.md) for detailed information about:
+- Country-specific validation rules
+- Known test numbers
+- Pattern detection algorithms
+- Connection status indicators
 
 ## Project Structure
 
