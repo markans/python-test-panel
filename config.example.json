@@ -1,0 +1,22 @@
+{
+    "sip": {
+        "username": "markgarcia_IRPJiXblBi",
+        "password": "Aecpx6cetjbE2yqmMn8f",
+        "server": "pbx.lexi-call.com",
+        "domain": "pbx.lexi-call.com",
+        "port": 5060,
+        "transport": "UDP",
+        "protocol": "SIP"
+    },
+    "test_settings": {
+        "call_duration_seconds": 25,
+        "idle_between_calls_seconds": 10,
+        "max_concurrent_executions": 0,
+        "timeout_seconds": 30
+    },
+    "server": {
+        "host": "127.0.0.1",
+        "port": 5000,
+        "debug": false
+    }
+}

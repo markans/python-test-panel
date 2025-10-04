@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phone Number Test Panel</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .card h2 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 1.3em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .input-group input,
+        .input-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .input-group textarea {
+            min-height: 150px;
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+        
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #e53e3e;
+        }
+        
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #38a169;
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .status-panel {
+            background: #f7fafc;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .status-item:last-child {
+            border-bottom: none;
+        }
+        
+        .status-label {
+            color: #718096;
+            font-weight: 500;
+        }
+        
+        .status-value {
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        .log-container {
+            background: #1a202c;
+            color: #a0aec0;
+            border-radius: 5px;
+            padding: 15px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+        
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 3px 0;
+        }
+        
+        .log-info {
+            color: #63b3ed;
+        }
+        
+        .log-success {
+            color: #68d391;
+        }
+        
+        .log-warning {
+            color: #f6ad55;
+        }
+        
+        .log-error {
+            color: #fc8181;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e2e8f0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .results-summary {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .result-card {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .result-card.connected {
+            border-color: #48bb78;
+            background: #f0fff4;
+        }
+        
+        .result-card.failed {
+            border-color: #f56565;
+            background: #fff5f5;
+        }
+        
+        .result-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2d3748;
+        }
+        
+        .result-label {
+            color: #718096;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
+        .config-section {
+            background: #f7fafc;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .config-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .config-item input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #cbd5e0;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        
+        .placeholder-text {
+            color: #a0aec0;
+            font-style: italic;
+            padding: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📞 Phone Number Test Panel</h1>
+        
+        <div class="grid">
+            <!-- Left Column -->
+            <div>
+                <!-- Configuration Card -->
+                <div class="card">
+                    <h2>SIP Configuration</h2>
+                    <div class="config-section">
+                        <div class="config-grid">
+                            <div class="config-item">
+                                <label>Username</label>
+                                <input type="text" id="sip-username" placeholder="SIP Username">
+                            </div>
+                            <div class="config-item">
+                                <label>Password</label>
+                                <input type="password" id="sip-password" placeholder="SIP Password">
+                            </div>
+                            <div class="config-item">
+                                <label>Server</label>
+                                <input type="text" id="sip-server" placeholder="pbx.example.com">
+                            </div>
+                            <div class="config-item">
+                                <label>Port</label>
+                                <input type="number" id="sip-port" value="5060">
+                            </div>
+                        </div>
+                        <button class="btn-primary" onclick="saveConfig()" style="margin-top: 10px;">Save Configuration</button>
+                    </div>
+                </div>
+                
+                <!-- Input Card -->
+                <div class="card">
+                    <h2>Phone Numbers</h2>
+                    <div class="input-group">
+                        <label>Enter phone numbers (one per line):</label>
+                        <textarea id="phone-numbers" placeholder="+1234567890
++9876543210
++5555555555"></textarea>
+                    </div>
+                    <div class="button-group">
+                        <button class="btn-primary" id="start-test" onclick="startTest()">
+                            Start Test
+                        </button>
+                        <button class="btn-danger" id="stop-test" onclick="stopTest()" disabled>
+                            Stop Test
+                        </button>
+                    </div>
+                    <div class="button-group">
+                        <button class="btn-success" onclick="exportResults('csv')">
+                            Export CSV
+                        </button>
+                        <button class="btn-success" onclick="exportResults('xlsx')">
+                            Export Excel
+                        </button>
+                        <button class="btn-success" onclick="exportResults('csv', true)">
+                            Export Connected Only
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column -->
+            <div>
+                <!-- Status Card -->
+                <div class="card">
+                    <h2>Test Status</h2>
+                    <div class="status-panel">
+                        <div class="status-item">
+                            <span class="status-label">Status:</span>
+                            <span class="status-value" id="test-status">Idle</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Current Number:</span>
+                            <span class="status-value" id="current-number">-</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Progress:</span>
+                            <span class="status-value" id="progress">0 / 0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-bar" style="width: 0%">
+                            0%
+                        </div>
+                    </div>
+                    
+                    <div class="results-summary">
+                        <div class="result-card">
+                            <div class="result-number" id="total-count">0</div>
+                            <div class="result-label">Total</div>
+                        </div>
+                        <div class="result-card connected">
+                            <div class="result-number" id="connected-count">0</div>
+                            <div class="result-label">Connected</div>
+                        </div>
+                        <div class="result-card failed">
+                            <div class="result-number" id="failed-count">0</div>
+                            <div class="result-label">Failed</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Log Card -->
+                <div class="card">
+                    <h2>Real-time Log</h2>
+                    <div class="log-container" id="log-container">
+                        <div class="placeholder-text">Waiting for test to start...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Initialize Socket.IO connection
+        const socket = io();
+        
+        // Load configuration on page load
+        window.onload = function() {
+            loadConfig();
+        };
+        
+        // Socket event handlers
+        socket.on('connect', function() {
+            addLog('Connected to server', 'info');
+        });
+        
+        socket.on('status_update', function(status) {
+            updateStatus(status);
+        });
+        
+        socket.on('log_update', function(log) {
+            addLog(log.message, log.level);
+        });
+        
+        function loadConfig() {
+            fetch('/api/config')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.sip) {
+                        document.getElementById('sip-username').value = data.sip.username || '';
+                        document.getElementById('sip-password').value = data.sip.password || '';
+                        document.getElementById('sip-server').value = data.sip.server || '';
+                        document.getElementById('sip-port').value = data.sip.port || 5060;
+                    }
+                })
+                .catch(error => console.error('Error loading config:', error));
+        }
+        
+        function saveConfig() {
+            const config = {
+                sip: {
+                    username: document.getElementById('sip-username').value,
+                    password: document.getElementById('sip-password').value,
+                    server: document.getElementById('sip-server').value,
+                    domain: document.getElementById('sip-server').value,
+                    port: parseInt(document.getElementById('sip-port').value),
+                    transport: 'UDP',
+                    protocol: 'SIP'
+                },
+                test_settings: {
+                    call_duration_seconds: 25,
+                    idle_between_calls_seconds: 10,
+                    max_concurrent_executions: 0,
+                    timeout_seconds: 30
+                },
+                server: {
+                    host: '127.0.0.1',
+                    port: 5000,
+                    debug: false
+                }
+            };
+            
+            fetch('/api/config', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(config)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    addLog('Configuration saved successfully', 'success');
+                } else {
+                    addLog('Error saving configuration', 'error');
+                }
+            })
+            .catch(error => {
+                addLog('Error saving configuration: ' + error, 'error');
+            });
+        }
+        
+        function startTest() {
+            const phoneNumbers = document.getElementById('phone-numbers').value
+                .split('\n')
+                .map(n => n.trim())
+                .filter(n => n.length > 0);
+            
+            if (phoneNumbers.length === 0) {
+                alert('Please enter at least one phone number');
+                return;
+            }
+            
+            // Clear previous logs
+            document.getElementById('log-container').innerHTML = '';
+            
+            fetch('/api/test/start', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({phone_numbers: phoneNumbers})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('start-test').disabled = true;
+                    document.getElementById('stop-test').disabled = false;
+                    addLog(`Test started with ${data.total_numbers} numbers`, 'info');
+                } else {
+                    alert('Error: ' + (data.error || 'Failed to start test'));
+                }
+            })
+            .catch(error => {
+                alert('Error starting test: ' + error);
+            });
+        }
+        
+        function stopTest() {
+            fetch('/api/test/stop', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('start-test').disabled = false;
+                    document.getElementById('stop-test').disabled = true;
+                    addLog('Test stopped', 'warning');
+                }
+            });
+        }
+        
+        function updateStatus(status) {
+            // Update status text
+            document.getElementById('test-status').textContent = 
+                status.is_running ? 'Running' : 'Idle';
+            
+            // Update current number
+            document.getElementById('current-number').textContent = 
+                status.current_number || '-';
+            
+            // Update progress
+            document.getElementById('progress').textContent = 
+                `${status.tested_numbers} / ${status.total_numbers}`;
+            
+            // Update progress bar
+            const percentage = status.total_numbers > 0 
+                ? Math.round((status.tested_numbers / status.total_numbers) * 100)
+                : 0;
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.style.width = `${percentage}%`;
+            progressBar.textContent = `${percentage}%`;
+            
+            // Update counts
+            document.getElementById('total-count').textContent = status.total_numbers;
+            document.getElementById('connected-count').textContent = status.connected_numbers.length;
+            document.getElementById('failed-count').textContent = status.failed_numbers.length;
+            
+            // Update buttons
+            if (!status.is_running) {
+                document.getElementById('start-test').disabled = false;
+                document.getElementById('stop-test').disabled = true;
+            }
+        }
+        
+        function addLog(message, level = 'info') {
+            const logContainer = document.getElementById('log-container');
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${level}`;
+            
+            const timestamp = new Date().toLocaleTimeString();
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            
+            // Remove placeholder if exists
+            const placeholder = logContainer.querySelector('.placeholder-text');
+            if (placeholder) {
+                placeholder.remove();
+            }
+            
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        
+        function exportResults(format, connectedOnly = false) {
+            const url = `/api/export/${format}${connectedOnly ? '?connected_only=true' : ''}`;
+            window.location.href = url;
+        }
+    </script>
+</body>
+</html>

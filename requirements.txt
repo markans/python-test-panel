@@ -1,0 +1,8 @@
+# Core dependencies - Minimal and lightweight
+flask==3.0.0
+flask-socketio==5.3.5
+python-socketio==5.10.0
+pyVoIP==1.6.8  # Lightweight pure Python SIP/RTP library
+openpyxl==3.1.2  # For Excel export
+eventlet==0.33.3  # For async operations
+python-dotenv==1.0.0  # For environment variables
