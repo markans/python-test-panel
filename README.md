@@ -102,6 +102,7 @@ Navigate to: `http://localhost:5000`
 2. **Enter Phone Numbers**
    - Input phone numbers in the text area (one per line)
    - Format: Include country code (e.g., +1234567890)
+   - Optional: Add annotations after the number (e.g., `907086197000 - connected`)—only the digits are used for testing
 
 3. **Start Testing**
    - Click "Start Test" button

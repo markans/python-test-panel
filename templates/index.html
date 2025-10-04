@@ -503,6 +503,18 @@
             const idle = document.getElementById('idle-seconds').value;
             document.getElementById('current-settings').textContent = `Wait: ${maxWait}s | Idle: ${idle}s`;
         }
+
+        function resetStatusUI(totalNumbers) {
+            document.getElementById('test-status').textContent = totalNumbers > 0 ? 'Preparing' : 'Idle';
+            document.getElementById('current-number').textContent = '-';
+            document.getElementById('progress').textContent = `0 / ${totalNumbers}`;
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.style.width = '0%';
+            progressBar.textContent = '0%';
+            document.getElementById('total-count').textContent = totalNumbers;
+            document.getElementById('connected-count').textContent = 0;
+            document.getElementById('failed-count').textContent = 0;
+        }
         
         // Update display when values change
         document.getElementById('max-wait-seconds').addEventListener('change', updateSettingsDisplay);
@@ -584,8 +596,11 @@
             const maxWait = parseInt(document.getElementById('max-wait-seconds').value);
             const idle = parseInt(document.getElementById('idle-seconds').value);
             
-            // Clear previous logs
-            document.getElementById('log-container').innerHTML = '';
+            // Reset UI state for new run
+            resetStatusUI(phoneNumbers.length);
+
+            const logContainer = document.getElementById('log-container');
+            logContainer.innerHTML = '<div class="placeholder-text">Waiting for status updates...</div>';
             
             fetch('/api/test/start', {
                 method: 'POST',
