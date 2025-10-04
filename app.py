@@ -6,7 +6,7 @@ import json
 import logging
 from flask import Flask, render_template, request, jsonify, send_file
 from flask_socketio import SocketIO, emit
-from sip_handler_realtime import RealtimeSIPTester as SIPCallTester
+from sip_handler_production import ProductionSIPTester as SIPCallTester
 from export_utils import export_to_csv, export_to_excel, export_connected_only
 
 # Configure logging
