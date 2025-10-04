@@ -84,42 +84,6 @@
             font-family: 'Courier New', monospace;
         }
         
-        .timing-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            background: #f0f7ff;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-        
-        .timing-input {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .timing-input label {
-            margin-bottom: 5px;
-            color: #555;
-            font-weight: 500;
-            font-size: 13px;
-        }
-        
-        .timing-input input {
-            padding: 8px;
-            border: 1px solid #cbd5e0;
-            border-radius: 4px;
-            font-size: 14px;
-            background: white;
-        }
-        
-        .timing-input .help-text {
-            font-size: 11px;
-            color: #718096;
-            margin-top: 3px;
-        }
-        
         .button-group {
             display: flex;
             gap: 10px;
@@ -203,7 +167,7 @@
             color: #a0aec0;
             border-radius: 5px;
             padding: 15px;
-            height: 400px;
+            height: 300px;
             overflow-y: auto;
             font-family: 'Courier New', monospace;
             font-size: 13px;
@@ -315,21 +279,11 @@
             padding: 20px;
             text-align: center;
         }
-        
-        .timing-badge {
-            display: inline-block;
-            background: #edf2f7;
-            color: #4a5568;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            margin-left: 5px;
-        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📞 Phone Number Test Panel v2.0</h1>
+        <h1>📞 Phone Number Test Panel</h1>
         
         <div class="grid">
             <!-- Left Column -->
@@ -360,38 +314,13 @@
                     </div>
                 </div>
                 
-                <!-- Test Settings Card -->
-                <div class="card">
-                    <h2>Test Settings ⚙️</h2>
-                    <div class="timing-group">
-                        <div class="timing-input">
-                            <label>Max Wait Time (seconds)</label>
-                            <input type="number" id="max-wait-seconds" value="25" min="5" max="120">
-                            <div class="help-text">Maximum time to wait for answer</div>
-                        </div>
-                        <div class="timing-input">
-                            <label>Idle Time (seconds)</label>
-                            <input type="number" id="idle-seconds" value="10" min="0" max="60">
-                            <div class="help-text">Pause after connected calls</div>
-                        </div>
-                    </div>
-                    <div style="background: #fef5e7; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
-                        <p style="font-size: 13px; color: #856404;">
-                            <strong>📌 How it works:</strong><br>
-                            • Call connects immediately when answered<br>
-                            • Max wait = timeout if no answer<br>
-                            • Idle only applies after connected calls
-                        </p>
-                    </div>
-                </div>
-                
                 <!-- Input Card -->
                 <div class="card">
                     <h2>Phone Numbers</h2>
                     <div class="input-group">
                         <label>Enter phone numbers (one per line):</label>
-                        <textarea id="phone-numbers" placeholder="63322683000
-+1234567890
+                        <textarea id="phone-numbers" placeholder="+1234567890
++9876543210
 +5555555555"></textarea>
                     </div>
                     <div class="button-group">
@@ -410,7 +339,7 @@
                             Export Excel
                         </button>
                         <button class="btn-success" onclick="exportResults('csv', true)">
-                            Connected Only
+                            Export Connected Only
                         </button>
                     </div>
                 </div>
@@ -433,12 +362,6 @@
                         <div class="status-item">
                             <span class="status-label">Progress:</span>
                             <span class="status-value" id="progress">0 / 0</span>
-                        </div>
-                        <div class="status-item">
-                            <span class="status-label">Settings:</span>
-                            <span class="status-value">
-                                <span class="timing-badge" id="current-settings">Wait: 25s | Idle: 10s</span>
-                            </span>
                         </div>
                     </div>
                     
@@ -482,7 +405,6 @@
         // Load configuration on page load
         window.onload = function() {
             loadConfig();
-            updateSettingsDisplay();
         };
         
         // Socket event handlers
@@ -498,16 +420,6 @@
             addLog(log.message, log.level);
         });
         
-        function updateSettingsDisplay() {
-            const maxWait = document.getElementById('max-wait-seconds').value;
-            const idle = document.getElementById('idle-seconds').value;
-            document.getElementById('current-settings').textContent = `Wait: ${maxWait}s | Idle: ${idle}s`;
-        }
-        
-        // Update display when values change
-        document.getElementById('max-wait-seconds').addEventListener('change', updateSettingsDisplay);
-        document.getElementById('idle-seconds').addEventListener('change', updateSettingsDisplay);
-        
         function loadConfig() {
             fetch('/api/config')
                 .then(response => response.json())
@@ -517,11 +429,6 @@
                         document.getElementById('sip-password').value = data.sip.password || '';
                         document.getElementById('sip-server').value = data.sip.server || '';
                         document.getElementById('sip-port').value = data.sip.port || 5060;
-                    }
-                    if (data.test_settings) {
-                        document.getElementById('max-wait-seconds').value = data.test_settings.call_duration_seconds || 25;
-                        document.getElementById('idle-seconds').value = data.test_settings.idle_between_calls_seconds || 10;
-                        updateSettingsDisplay();
                     }
                 })
                 .catch(error => console.error('Error loading config:', error));
@@ -539,13 +446,13 @@
                     protocol: 'SIP'
                 },
                 test_settings: {
-                    call_duration_seconds: parseInt(document.getElementById('max-wait-seconds').value),
-                    idle_between_calls_seconds: parseInt(document.getElementById('idle-seconds').value),
+                    call_duration_seconds: 25,
+                    idle_between_calls_seconds: 10,
                     max_concurrent_executions: 0,
                     timeout_seconds: 30
                 },
                 server: {
-                    host: '0.0.0.0',
+                    host: '127.0.0.1',
                     port: 5000,
                     debug: false
                 }
@@ -580,28 +487,20 @@
                 return;
             }
             
-            // Get timing settings
-            const maxWait = parseInt(document.getElementById('max-wait-seconds').value);
-            const idle = parseInt(document.getElementById('idle-seconds').value);
-            
             // Clear previous logs
             document.getElementById('log-container').innerHTML = '';
             
             fetch('/api/test/start', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    phone_numbers: phoneNumbers,
-                    max_wait_seconds: maxWait,
-                    idle_seconds: idle
-                })
+                body: JSON.stringify({phone_numbers: phoneNumbers})
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     document.getElementById('start-test').disabled = true;
                     document.getElementById('stop-test').disabled = false;
-                    addLog(`Test started: ${data.total_numbers} numbers | Wait: ${maxWait}s | Idle: ${idle}s`, 'info');
+                    addLog(`Test started with ${data.total_numbers} numbers`, 'info');
                 } else {
                     alert('Error: ' + (data.error || 'Failed to start test'));
                 }

@@ -5,6 +5,7 @@ A lightweight web-based application for testing phone number connectivity using 
 ## Features
 
 - ✅ **Batch Testing**: Test multiple phone numbers sequentially
+- ✅ **Improved SIP Handler**: Better connection detection with test mode for 63322683000
 - 📊 **Real-time Status**: Live updates and progress tracking via WebSocket
 - 📝 **Detailed Logging**: Real-time log display with color-coded messages
 - 💾 **Export Results**: Export results to CSV or Excel format

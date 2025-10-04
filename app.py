@@ -6,7 +6,7 @@ import json
 import logging
 from flask import Flask, render_template, request, jsonify, send_file
 from flask_socketio import SocketIO, emit
-from sip_handler_improved import ImprovedSIPTester as SIPCallTester
+from sip_handler_realtime import RealtimeSIPTester as SIPCallTester
 from export_utils import export_to_csv, export_to_excel, export_connected_only
 
 # Configure logging
@@ -83,6 +83,8 @@ def start_test():
     try:
         data = request.json
         phone_numbers = data.get('phone_numbers', [])
+        max_wait = data.get('max_wait_seconds', 25)
+        idle = data.get('idle_seconds', 10)
         
         if not phone_numbers:
             return jsonify({'error': 'No phone numbers provided'}), 400
@@ -90,14 +92,17 @@ def start_test():
         if sip_tester.get_status()['is_running']:
             return jsonify({'error': 'Test already in progress'}), 400
         
-        # Start test with callbacks for real-time updates
+        # Start test with callbacks for real-time updates and custom timing
         sip_tester.test_multiple_numbers(
             phone_numbers,
             status_callback=lambda status: socketio.emit('status_update', status),
-            log_callback=lambda log: socketio.emit('log_update', log)
+            log_callback=lambda log: socketio.emit('log_update', log),
+            max_wait=max_wait,
+            idle=idle
         )
         
-        return jsonify({'success': True, 'total_numbers': len(phone_numbers)})
+        return jsonify({'success': True, 'total_numbers': len(phone_numbers), 
+                       'settings': {'max_wait': max_wait, 'idle': idle}})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
