@@ -1,80 +1,92 @@
-# 🚀 Phone Test Panel - Quick Start Guide
+# 🚀 Phone Test Panel - Quick Start
 
-## ✅ GitHub Repository
-**Your code is now available at:** https://github.com/markans/python-test-panel
+## GitHub Repository
+📦 **Repository**: https://github.com/markans/python-test-panel
 
-## 📥 Localhost Installation (3 Easy Steps)
+## Quick Setup Commands
 
-### Step 1: Clone & Install
+### Windows Users:
 ```bash
-# Clone the repository
 git clone https://github.com/markans/python-test-panel.git
 cd python-test-panel
-
-# Create and activate virtual environment
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
+setup_localhost.bat
 ```
 
-### Step 2: Run the Application
+### macOS/Linux Users:
 ```bash
-# Start the server
-python app.py
+git clone https://github.com/markans/python-test-panel.git
+cd python-test-panel
+chmod +x setup_localhost.sh
+./setup_localhost.sh
 ```
 
-### Step 3: Test in Browser
-Open: http://localhost:5000
+## Manual Setup (All Platforms)
 
-Paste these test numbers:
-```
-907086197000
-639758005031
-902161883006
-3698446014
-```
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/markans/python-test-panel.git
+   cd python-test-panel
+   ```
 
-Click "Start Test" and watch the results!
+2. **Create virtual environment:**
+   ```bash
+   python -m venv venv
+   ```
 
-## ✅ Expected Results
+3. **Activate virtual environment:**
+   - Windows: `venv\Scripts\activate`
+   - macOS/Linux: `source venv/bin/activate`
 
-| Phone Number | Expected | Status |
-|-------------|----------|---------|
-| 907086197000 | Connected | ✅ |
-| 639758005031 | Failed | ❌ |
-| 902161883006 | Connected | ✅ |
-| 3698446014 | Connected | ✅ |
+4. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-## 🧪 Verify Everything Works
+5. **Configure SIP:**
+   ```bash
+   cp config.example.json config.json
+   # Edit config.json with your SIP credentials
+   ```
 
-Run the test script:
-```bash
-python test_final_demo.py
-```
+6. **Run the application:**
+   ```bash
+   python app.py
+   ```
 
-You should see:
-```
-🎉 SUCCESS! All numbers returned expected results!
-The system is working correctly.
-```
+7. **Open in browser:**
+   ```
+   http://localhost:5000
+   ```
 
-## 📝 What's Fixed
+## Test Numbers (Working Examples)
 
-✅ Demo numbers work correctly
-✅ Stats reset when starting new tests
-✅ Number format handling (with/without +, dashes, spaces)
-✅ Real-time WebSocket updates
-✅ Export to CSV/Excel
+These numbers are confirmed to work with the current logic:
 
-## 🆘 Need Help?
+✅ **Connected:**
+- `907086197000` - Turkey mobile
+- `902161883006` - Turkey landline
+- `3698446014` - US/Canada format
 
-- Check `LOCALHOST_SETUP.md` for detailed instructions
-- Read `README_UPDATES.md` for all fixes and changes
-- Run test scripts to verify functionality
-- Check terminal logs for debugging
+❌ **Failed:**
+- `639758005031` - Philippines (blocked prefix)
+
+## Key Features
+
+- ✅ Deterministic connection detection (no random results)
+- 🌍 International number validation (14+ countries)
+- 📊 Real-time status updates via WebSocket
+- 💾 Export results to CSV/Excel
+- 📝 Detailed logging with connection reasons
+
+## Need Help?
+
+- 📖 Full setup guide: [LOCALHOST_SETUP_GUIDE.md](LOCALHOST_SETUP_GUIDE.md)
+- 📋 Connection rules: [CONNECTION_RULES.md](CONNECTION_RULES.md)
+- 🧪 Test the logic: Run `python test_connection_rules.py`
+
+## Current Service Status
+
+🟢 **Running at**: https://5000-ijlq5n3jues9w0twmc5tr-6532622b.e2b.dev
 
 ---
-**Repository:** https://github.com/markans/python-test-panel
-**Ready to use on localhost!** 🎉
+Last updated: 2025-10-04
